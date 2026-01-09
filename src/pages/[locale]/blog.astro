@@ -1,0 +1,51 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogPost from "../../components/BlogPost.astro";
+
+export async function getStaticPaths() {
+  const locales = ["en", "tc", "sc"];
+  return locales.map((locale) => ({
+    params: { locale },
+    props: { locale },
+  }));
+}
+
+const { locale } = Astro.props;
+// const allPosts = Object.values(
+//   import.meta.glob("./posts/*.md", { eager: true })
+// );
+//import.meta.glob() will return an array of objects, one for each blog post.
+
+// const allPosts = await getCollection("blog");
+const allPosts = await getCollection(
+  "blog",
+  ({ data }) => data.locale === locale
+);
+const pageTitle = "My Astro Learning Blog";
+---
+
+<BaseLayout pageTitle={pageTitle}>
+  <h2>Blog subtitle</h2>
+
+  <ul>
+    <!-- {
+      allPosts.map((post: any) => (
+        <li>
+          <a href={post.url}>{post.frontmatter.title}</a>
+        </li>
+      ))
+    } -->
+    <!-- Create the list by a BlogPost component -->
+    {
+      allPosts.map((post: any) => (
+        // <BlogPost url={post.url} title={post.frontmatter.title} />
+        <BlogPost
+          url={`/${locale}/posts/${post.id.split("/")[1]}/`}
+          title={post.data.title}
+        />
+      ))
+    }
+  </ul>
+</BaseLayout>
+<!-- url={`/${locale}/posts/${post.slug}/`} -->

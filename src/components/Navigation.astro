@@ -1,0 +1,129 @@
+---
+import { locales, navTranslations } from "../lib/i18n";
+
+const locale = Astro.url.pathname.split("/")[1] || "en";
+const currentPath = Astro.url.pathname;
+const nav =
+  navTranslations[locale as keyof typeof navTranslations] || navTranslations.en;
+
+// Helper function to check if path is active
+const isActive = (path: string, isHome: boolean = false): boolean => {
+  const normalizedPath = path.replace(/\/$/, "");
+  const normalizedCurrentPath = currentPath.replace(/\/$/, "");
+
+  if (isHome) {
+    // Home should only match exactly the locale root
+    return normalizedCurrentPath === normalizedPath;
+  }
+
+  // Other pages match exactly or as a prefix with a slash
+  return (
+    normalizedCurrentPath === normalizedPath ||
+    normalizedCurrentPath.startsWith(normalizedPath + "/")
+  );
+};
+---
+
+<div id="main-menu" class="nav-links">
+  <a href={`/${locale}/`} class={isActive(`/${locale}/`, true) ? "active" : ""}
+    >{nav.home}</a
+  >
+  <a
+    href={`/${locale}/about/`}
+    class={isActive(`/${locale}/about`) ? "active" : ""}>{nav.about}</a
+  >
+  <a
+    href={`/${locale}/blog/`}
+    class={isActive(`/${locale}/blog`) ? "active" : ""}>{nav.blog}</a
+  >
+  <a
+    href={`/${locale}/tags/`}
+    class={isActive(`/${locale}/tags`) ? "active" : ""}>{nav.tags}</a
+  >
+</div>
+
+<div id="language-menu" class="language-switcher">
+  <button aria-label={nav.languages} title={nav.languages}> 🌐 </button>
+  <div class="language-dropdown">
+    {
+      Object.entries(locales).map(([code, name]) => (
+        <a
+          href={`/${code}${Astro.url.pathname.replace(/^\/(en|tc|sc)/, "")}`}
+          class={code === locale ? "active" : ""}
+        >
+          {name}
+        </a>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .nav-links a {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 0.3rem;
+    transition: background-color 0.2s ease;
+  }
+
+  .nav-links a:hover {
+    background-color: var(--color-bg-secondary, #f0f0f0);
+  }
+
+  .nav-links a.active {
+    background-color: #ff9999;
+    font-weight: bold;
+    color: white;
+  }
+
+  .language-switcher {
+    position: relative;
+    display: inline-block;
+  }
+
+  .language-switcher button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.3rem;
+  }
+
+  .language-switcher button:hover {
+    background-color: var(--color-bg-secondary, #f0f0f0);
+  }
+
+  .language-dropdown {
+    display: none;
+    position: absolute;
+    background-color: var(--color-bg, white);
+    min-width: 150px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 0;
+    z-index: 1;
+    top: 100%;
+    right: 0;
+    border-radius: 0.3rem;
+  }
+
+  .language-switcher:hover .language-dropdown {
+    display: block;
+  }
+
+  .language-dropdown a {
+    color: var(--color-text, inherit);
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    display: block;
+  }
+
+  .language-dropdown a:hover {
+    background-color: var(--color-bg-secondary, #f0f0f0);
+  }
+
+  .language-dropdown a.active {
+    font-weight: bold;
+    background-color: var(--color-bg-tertiary, #e0e0e0);
+  }
+</style>

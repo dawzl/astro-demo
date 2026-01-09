@@ -1,0 +1,44 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import BlogPost from "../../../components/BlogPost.astro";
+
+export async function getStaticPaths() {
+  const locales = ["en", "tc", "sc"];
+  const allPosts = await getCollection("blog");
+  const uniqueTags = [
+    ...new Set(allPosts.map((post) => post.data.tags).flat()),
+  ];
+
+  const paths = [];
+  for (const locale of locales) {
+    for (const tag of uniqueTags) {
+      const filteredPosts = allPosts.filter(
+        (post) => post.data.tags.includes(tag) && post.data.locale === locale
+      );
+      paths.push({
+        params: { locale, tag },
+        props: { posts: filteredPosts, locale },
+      });
+    }
+  }
+  return paths;
+}
+
+const { tag } = Astro.params;
+const { posts, locale } = Astro.props;
+---
+
+<BaseLayout pageTitle={`Posts tagged with ${tag}`}>
+  <p>Posts tagged with <strong>{tag}</strong></p>
+  <ul>
+    {
+      posts.map((post) => (
+        <BlogPost
+          url={`/${locale}/posts/${post.id.split("/")[1]}/`}
+          title={post.data.title}
+        />
+      ))
+    }
+  </ul>
+</BaseLayout>

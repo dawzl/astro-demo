@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const locales = ["en", "tc", "sc"];
+  return locales.map((locale) => ({
+    params: { locale },
+    props: { locale },
+  }));
+}
+
+const { locale } = Astro.props;
+const pageTitle =
+  locale === "en" ? "About Me" : locale === "tc" ? "關於我" : "关于我";
+
+const identity = {
+  firstName: "Sarah",
+  country: "Canada",
+  occupation: "Technical Writer",
+  hobbies: ["photography", "birdwatching", "baseball"],
+};
+
+const skills = ["HTML", "CSS", "JavaScript", "React", "Astro", "Writing Docs"];
+
+const happy = true;
+const finished = false;
+const goal = 3;
+
+const headingColor = "purple";
+const skillColor = "crimson";
+const fontWeight = "bold";
+const textCase = "uppercase";
+---
+
+<BaseLayout pageTitle={pageTitle}>
+  <style
+    is:global
+    define:vars={{ skillColor, headingColor, fontWeight, textCase }}
+  >
+    /*  is:global  Unscoped, delivered as-is to the browser.
+     Applies to all <h1> tags on your site. */
+    /* Scoped to this component, only. */
+    h1 {
+      color: var(--headingColor);
+      font-size: 4rem;
+    }
+    .skill {
+      color: var(--skillColor);
+      font-weight: var(--fontWeight);
+      text-transform: var(--textCase);
+    }
+    /* Mixed: Applies to child `h1` elements only. */
+    :global(h1) {
+      color: blue;
+    }
+  </style>
+  <h1>test</h1>
+  <h2>{pageTitle}</h2>
+  <h2>... and my new Astro site!</h2>
+
+  <p>Here are a few facts about me:</p>
+  <ul>
+    <li>My name is {identity.firstName}.</li>
+    <li>
+      I live in {identity.country} and I work as a {identity.occupation}.
+    </li>
+    {
+      identity.hobbies.length >= 2 && (
+        <li>
+          Two of my hobbies are: {identity.hobbies[0]} and {identity.hobbies[1]}
+        </li>
+      )
+    }
+  </ul>
+  <p>My skills are:</p>
+  <ul>
+    {skills.map((skill) => <li class="skill">{skill}</li>)}
+  </ul>
+
+  {happy && <p>I am happy to be learning Astro!</p>}
+
+  {finished && <p>I finished this tutorial!</p>}
+
+  {
+    goal === 3 ? (
+      <p>My goal is to finish in 3 days.</p>
+    ) : (
+      <p>My goal is not 3 days.</p>
+    )
+  }
+</BaseLayout>
+
+<!-- /* To continue to style items only at the page level using Astro’s scoped styling, move the <style> tag to the body of the page component.*/ -->

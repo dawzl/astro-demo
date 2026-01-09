@@ -1,0 +1,33 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+
+const locale = Astro.url.pathname.split("/")[1] || "en";
+const langMap: Record<string, string> = {
+  en: "en",
+  tc: "zh-Hant",
+  sc: "zh-Hans",
+};
+const htmlLang = langMap[locale] || "en";
+const { pageTitle } = Astro.props;
+---
+
+<html lang={htmlLang}>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <Header />
+    <h1>{pageTitle}</h1>
+    <slot />
+    <Footer />
+    <script>
+      import "../scripts/menu.js";
+    </script>
+  </body>
+</html>

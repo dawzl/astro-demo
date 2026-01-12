@@ -1,0 +1,73 @@
+{
+  "menu": [
+    {
+      "id": "home",
+      "path": "/",
+      "type": "page",
+      "labels": {
+        "en": "Home",
+        "tc": "首頁",
+        "sc": "首页"
+      }
+    },
+    {
+      "id": "about",
+      "path": "/about/",
+      "type": "page",
+      "labels": {
+        "en": "About",
+        "tc": "關於",
+        "sc": "关于"
+      }
+    },
+    {
+      "id": "blog",
+      "path": "/blog/",
+      "type": "page",
+      "labels": {
+        "en": "Blog",
+        "tc": "部落格",
+        "sc": "博客"
+      },
+      "matchPrefixes": ["/blog/", "/posts/"]
+    },
+    {
+      "id": "tags",
+      "path": "/tags/",
+      "type": "page",
+      "labels": {
+        "en": "Tags",
+        "tc": "標籤",
+        "sc": "标签"
+      }
+    }
+  ],
+  "breadcrumbLabels": {
+    "en": {
+      "home": "Home",
+      "about": "About",
+      "blog": "Blog",
+      "posts": "Posts",
+      "tags": "Tags"
+    },
+    "tc": {
+      "home": "首頁",
+      "about": "關於",
+      "blog": "部落格",
+      "posts": "貼文",
+      "tags": "標籤"
+    },
+    "sc": {
+      "home": "首页",
+      "about": "关于",
+      "blog": "博客",
+      "posts": "文章",
+      "tags": "标签"
+    }
+  },
+  "languageLabel": {
+    "en": "Languages",
+    "tc": "語言",
+    "sc": "语言"
+  }
+}

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Greeting from "../../components/Greeting";
-
+import HomeCarousel from "../../components/HomeCarousel.client.jsx";
 export async function getStaticPaths() {
   const locales = ["en", "tc", "sc"];
   return locales.map((locale) => ({
@@ -20,6 +20,7 @@ const pageTitle =
   <h3>Home page</h3>
   <Greeting messages={["Hi", "Hello", "Howdy", "Hey there"]} />
   <Greeting client:load messages={["Hej", "Hallo", "Hola", "Habari"]} />
+  <HomeCarousel client:load />
   <!--  hydrated component.  -->
 </BaseLayout>
 

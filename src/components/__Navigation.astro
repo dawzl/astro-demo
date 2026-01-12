@@ -1,0 +1,161 @@
+---
+import menuData from "../data/menu.json";
+
+const locale = Astro.url.pathname.split("/")[1] || "en";
+const currentPath = Astro.url.pathname;
+
+// Helper function to check if path is active
+const isActive = (
+  path: string,
+  matchPrefixes?: string[],
+  isHome: boolean = false
+): boolean => {
+  const normalizedPath = path.replace(/\/$/, "");
+  const normalizedCurrentPath = currentPath.replace(/\/$/, "");
+  const localizedPath = `/${locale}${normalizedPath}`;
+  const localizedCurrentPath = normalizedCurrentPath.startsWith(`/${locale}`)
+    ? normalizedCurrentPath
+    : `/${locale}${normalizedCurrentPath}`;
+
+  if (isHome) {
+    // Home should only match exactly the locale root
+    return localizedCurrentPath === localizedPath;
+  }
+
+  // Check primary path
+  if (
+    localizedCurrentPath === localizedPath ||
+    localizedCurrentPath.startsWith(localizedPath + "/")
+  ) {
+    return true;
+  }
+
+  // Check additional match prefixes
+  if (matchPrefixes) {
+    for (const prefix of matchPrefixes) {
+      const localizedPrefix = `/${locale}${prefix}`;
+      if (localizedCurrentPath.startsWith(localizedPrefix.replace(/\/$/, ""))) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+const pageMenu = menuData.menu.filter((item) => item.type === "page");
+---
+
+<div id="main-menu" class="nav-links">
+  {
+    pageMenu.map((item) => {
+      const label =
+        item.labels[locale as keyof typeof item.labels] || item.labels.en;
+      const href = `/${locale}${item.path}`;
+      const isHomePage = item.id === "home";
+      const active = isActive(item.path, item.matchPrefixes, isHomePage);
+      return (
+        <a href={href} class={active ? "active" : ""}>
+          {label}
+        </a>
+      );
+    })
+  }
+</div>
+
+<div id="language-menu" class="language-switcher">
+  <button
+    aria-label={menuData.languageLabel[
+      locale as keyof typeof menuData.languageLabel
+    ] || "Languages"}
+    title={menuData.languageLabel[
+      locale as keyof typeof menuData.languageLabel
+    ] || "Languages"}
+  >
+    🌐
+  </button>
+  <div class="language-dropdown">
+    {
+      Object.entries({ en: "English", tc: "繁體中文", sc: "简体中文" }).map(
+        ([code, name]) => (
+          <a
+            href={`/${code}${Astro.url.pathname.replace(/^\/(en|tc|sc)/, "")}`}
+            class={code === locale ? "active" : ""}
+          >
+            {name}
+          </a>
+        )
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .nav-links a {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 0.3rem;
+    transition: background-color 0.2s ease;
+  }
+
+  .nav-links a:hover {
+    background-color: var(--color-bg-secondary, #f0f0f0);
+  }
+
+  .nav-links a.active {
+    background-color: #ff9999;
+    font-weight: bold;
+    color: white;
+  }
+
+  .language-switcher {
+    position: relative;
+    display: inline-block;
+  }
+
+  .language-switcher button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.3rem;
+  }
+
+  .language-switcher button:hover {
+    background-color: var(--color-bg-secondary, #f0f0f0);
+  }
+
+  .language-dropdown {
+    display: none;
+    position: absolute;
+    background-color: var(--color-bg, white);
+    min-width: 150px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 0;
+    z-index: 1;
+    top: 100%;
+    right: 0;
+    border-radius: 0.3rem;
+  }
+
+  .language-switcher:hover .language-dropdown {
+    display: block;
+  }
+
+  .language-dropdown a {
+    color: var(--color-text, inherit);
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    display: block;
+  }
+
+  .language-dropdown a:hover {
+    background-color: var(--color-bg-secondary, #f0f0f0);
+  }
+
+  .language-dropdown a.active {
+    font-weight: bold;
+    background-color: var(--color-bg-tertiary, #e0e0e0);
+  }
+</style>

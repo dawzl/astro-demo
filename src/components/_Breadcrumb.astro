@@ -1,0 +1,166 @@
+---
+import { getCollection } from "astro:content";
+import { navTranslations } from "../lib/i18n";
+
+const pathname = Astro.url.pathname;
+const segments = pathname.split("/").filter(Boolean);
+const locale = segments[0] || "en";
+const translations =
+  navTranslations[locale as keyof typeof navTranslations] || navTranslations.en;
+
+// Build breadcrumb items
+interface BreadcrumbItem {
+  label: string;
+  path: string;
+  isCurrent: boolean;
+}
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    label: translations.home,
+    path: `/${locale}/`,
+    isCurrent: false,
+  },
+];
+
+// Parse URL segments to build breadcrumb trail
+if (segments.length > 1) {
+  const pageType = segments[1]; // e.g., 'about', 'blog', 'tags', 'posts'
+
+  if (pageType === "about") {
+    breadcrumbs.push({
+      label: translations.about,
+      path: `/${locale}/about/`,
+      isCurrent: segments.length === 2,
+    });
+  } else if (pageType === "blog") {
+    breadcrumbs.push({
+      label: translations.blog,
+      path: `/${locale}/blog/`,
+      isCurrent: segments.length === 2,
+    });
+  } else if (pageType === "posts" && segments.length > 2) {
+    // Blog posts: /locale/posts/[slug]
+    breadcrumbs.push({
+      label: translations.blog,
+      path: `/${locale}/blog/`,
+      isCurrent: false,
+    });
+
+    // Try to get the post title
+    const slug = segments[2];
+    try {
+      const allPosts = await getCollection("blog");
+      const post = allPosts.find(
+        (p) => p.id.split("/")[1] === slug && p.data.locale === locale
+      );
+      const postTitle = post?.data.title || slug;
+      breadcrumbs.push({
+        label: postTitle,
+        path: `/${locale}/posts/${slug}/`,
+        isCurrent: true,
+      });
+    } catch {
+      breadcrumbs.push({
+        label: slug,
+        path: `/${locale}/posts/${slug}/`,
+        isCurrent: true,
+      });
+    }
+  } else if (pageType === "tags") {
+    breadcrumbs.push({
+      label: translations.tags,
+      path: `/${locale}/tags/`,
+      isCurrent: segments.length === 2,
+    });
+
+    if (segments.length > 2) {
+      const tag = segments.slice(2).join("/");
+      const decodedTag = decodeURIComponent(tag); // decodes URL-encoded characters using decodeURIComponent()
+      breadcrumbs.push({
+        label: decodedTag,
+        path: `/${locale}/tags/${tag}/`,
+        isCurrent: true,
+      });
+    }
+  }
+}
+---
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <ol>
+    {
+      breadcrumbs.map((crumb, index) => (
+        <li>
+          {crumb.isCurrent ? (
+            <span class="current">{crumb.label}</span>
+          ) : (
+            <a href={crumb.path}>{crumb.label}</a>
+          )}
+          {index < breadcrumbs.length - 1 && <span class="separator">/</span>}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .breadcrumb {
+    margin: 1rem 0;
+    font-size: 0.95rem;
+  }
+
+  .breadcrumb ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .breadcrumb li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .breadcrumb a {
+    color: #0066cc;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.3rem;
+    transition: background-color 0.2s ease;
+  }
+
+  .breadcrumb a:hover {
+    background-color: #f0f0f0;
+    text-decoration: underline;
+  }
+
+  .breadcrumb .current {
+    color: #666;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    background-color: #f5f5f5;
+    border-radius: 0.3rem;
+  }
+
+  .breadcrumb .separator {
+    color: #999;
+    margin: 0 0.25rem;
+  }
+
+  @media (max-width: 768px) {
+    .breadcrumb ol {
+      font-size: 0.9rem;
+      gap: 0.25rem;
+    }
+
+    .breadcrumb a,
+    .breadcrumb .current {
+      padding: 0.2rem 0.3rem;
+    }
+  }
+</style>

@@ -98,3 +98,10 @@ html.dark {
 .dark a {
   color: #ff9776;
 }
+
+#homeSwiper .swiper-slide {
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

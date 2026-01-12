@@ -1,6 +1,7 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
 import "../styles/global.css";
 
 const locale = Astro.url.pathname.split("/")[1] || "en";
@@ -23,8 +24,14 @@ const { pageTitle } = Astro.props;
   </head>
   <body>
     <Header />
-    <h1>{pageTitle}</h1>
-    <slot />
+    <div id="contentWrap">
+      <Breadcrumb />
+      <h1>{pageTitle}</h1>
+      <div id="content">
+        <slot />
+      </div>
+    </div>
+
     <Footer />
     <script>
       import "../scripts/menu.js";
